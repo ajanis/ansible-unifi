@@ -1,0 +1,17 @@
+---
+- name: 'Start unifi docker container'
+  docker_container:
+    name: '{{ docker_unifi_container_name }}'
+    image: linuxserver/unifi
+    env:
+      PUID: '0'
+      PGID: '0'
+      VERSION: 'latest'
+    network_mode: 'host'
+    volumes:
+      - '{{ data_mount_root }}/{{ configs_directory }}/unifi:/config'
+    state: 'started'
+    restart_policy: 'always'
+    log_driver: 'syslog'
+    log_options:
+      tag: "unifi"

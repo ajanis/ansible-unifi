@@ -1,0 +1,7 @@
+---
+
+docker_unifi_container_name: unifi
+
+network_mounted_directory: /nfs/network/configs
+
+unifi_config_directory: unifi

@@ -1,0 +1,9 @@
+---
+- name: Deploy Unifi Controller
+  hosts: unifi
+  become: True
+  tasks:
+    - import_role:
+        name: common
+    - import_role:
+        name: unifi
