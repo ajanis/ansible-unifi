@@ -6,4 +6,5 @@
     - import_role:
         name: common
     - import_role:
-        name: unifi
+        name: docker
+      when: "'unifi' in group_names"
