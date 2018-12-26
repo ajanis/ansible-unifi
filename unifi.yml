@@ -7,4 +7,3 @@
         name: common
     - import_role:
         name: docker
-      when: "'unifi' in group_names"
