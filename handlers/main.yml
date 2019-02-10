@@ -1,0 +1,4 @@
+- name: restart_docker_unifi
+  service:
+    name: docker-unifi
+    state: restarted

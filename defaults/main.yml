@@ -1,7 +1,10 @@
 ---
 
+java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 docker_unifi_container_name: unifi
-
-network_mounted_directory: /nfs/network/configs
-
 unifi_config_directory: unifi
+unifi_admin_hostname: unifi-admin.home.prettybaked.com
+unifi_config_directory: /data/configs/unifi/data/
+unifi_directory: /usr/lib/unifi/data
+ssl_private_key: /etc/ssl/private/prettybaked.com.key
+ssl_certificate: /etc/ssl/certs/prettybaked.com.pem
