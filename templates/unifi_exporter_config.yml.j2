@@ -1,0 +1,10 @@
+listen:
+  address: :9130
+  metricspath: /metrics
+unifi:
+  address: {{ unifi_admin_url }}
+  username: {{ unifi_admin_user }}
+  password: "{{ unifi_admin_password }}"
+  site: {{ unifi_admin_site | default('default') }}
+  insecure: true
+  timeout: 5s

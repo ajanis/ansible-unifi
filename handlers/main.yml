@@ -2,3 +2,9 @@
   service:
     name: docker-unifi
     state: restarted
+- name: restart unifi_exporter
+  systemd:
+    name: docker-unifi_exporter
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
