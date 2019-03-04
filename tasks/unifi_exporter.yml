@@ -1,0 +1,6 @@
+---
+- name: Generate Unifi Prometheus Collector config file
+  template:
+    src: unifi_exporter_config.yml.j2
+    dest: '{{ media_root }}/configs/unifi_exporter/config.yml'
+  notify: restart unifi_exporter
