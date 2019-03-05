@@ -26,7 +26,7 @@ docker_containers:
     command: "-config.file /etc/unifi_exporter/config.yml"
     network_mode: host
     volumes:
-      - '{{ media_root }}/configs/unifi_exporter:/etc/unifi_exporter'
+      - '{{ data_mount_root }}/{{ configs_directory }}/unifi_exporter:/etc/unifi_exporter'
       
 docker_build_images:
   unifi_exporter:
