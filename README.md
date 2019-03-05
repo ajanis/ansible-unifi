@@ -4,8 +4,10 @@ This role makes use of [This Docker Role](https://github.com/ajanis/ansible-dock
 ## Example using group_vars
 This is an example of how to use this role to deploy the Ubiquiti Unifi Admin controller and a Prometheus metrics collector for Unifi Admin
 
-### docker_containers
-Uses the ansible docker_container module to deploy containers with specified arguments.  SystemD services are also created for each container.
+### docker_containers and docker_build_images group_vars for Unifi Admin and Unifi-Exporter
+Calls the docker role with the following group_vars to build a docker image from the specified git repo and deploy the containerized service and systemd configs.
+
+#### group_vars/unifi/vars.yml
 ```
 docker_containers: 
   unifi:
@@ -25,10 +27,7 @@ docker_containers:
     network_mode: host
     volumes:
       - '{{ media_root }}/configs/unifi_exporter:/etc/unifi_exporter'
-```
-### docker_build_images
-Uses the Ansible docker_image module to build a docker image using the specified repo and additional arguments.  Currently builds the image on the host which will run the container, but can be easily modified to push to a desired docker hub.
-```
+      
 docker_build_images:
   unifi_exporter:
     repo: "https://github.com/mdlayher/unifi_exporter.git"
