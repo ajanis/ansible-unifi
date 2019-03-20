@@ -1,0 +1,57 @@
+---
+
+- name: Ensure Unifi Data Directory Exists
+  file:
+    state: directory
+    path: /data/configs/unifi/data
+    owner: root
+    group: root
+
+- name: Install SSL Key
+  copy:
+    content: "{{ vault_prettybaked_com_ssl_private_key }}"
+    dest: "{{ ssl_private_key }}"
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Install SSL Certificate Chain
+  copy:
+    content: "{{ vault_prettybaked_com_ssl_certificate }}"
+    dest: "{{ ssl_certificate }}"
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Create SSL Import Script
+  template:
+    src: unifi_ssl_import.sh.j2
+    dest: /data/configs/unifi/unifi_ssl_import.sh
+    mode: 0775
+    owner: root
+    group: root
+
+- name: Build SSL Keystore for Unifi Admin
+  shell: /data/configs/unifi/unifi_ssl_import.sh >> /var/log/docker_unifi_ssl_upgrade.log
+  args:
+    executable: /bin/bash
+  notify: restart_docker_unifi
+
+
+
+#- name: 'Start unifi docker container'
+#  docker_container:
+#    name: '{{ docker_unifi_container_name }}'
+#    image: linuxserver/unifi
+#    env:
+#      PUID: '0'
+#      PGID: '0'
+#      VERSION: 'latest'
+#    network_mode: 'host'
+#    volumes:
+#      - '{{ data_mount_root }}/{{ configs_directory }}/unifi:/config'
+#    state: 'started'
+#    restart_policy: 'always'
+#    log_driver: 'syslog'
+#    log_options:
+#      tag: "unifi"
