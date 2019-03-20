@@ -4,4 +4,6 @@
   args:
     executable: /bin/bash
     creates: /tmp/unms_inst.sh
+  environment:
+    UNMS_HOME_DIR: /data/configs/unms
 
