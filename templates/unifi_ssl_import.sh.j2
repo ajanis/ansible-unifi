@@ -22,7 +22,7 @@
 # and be back online immediately.
 
 # CONFIGURATION OPTIONS
-UNIFI_HOSTNAME={{ unifi_admin_hostname }}
+UNIFI_HOSTNAME={{ unifi_admin_host }}
 UNIFI_SERVICE={{ docker_unifi_container_name }}
 
 # Uncomment following three lines for Fedora/RedHat/CentOS
@@ -32,8 +32,8 @@ UNIFI_SERVICE={{ docker_unifi_container_name }}
 
 # Uncomment following three lines for Debian/Ubuntu
 UNIFI_CONFIG_DIR='{{ unifi_config_directory }}'
-UNIFI_DIR='{{ unifi_directory }}'
-JAVA_DIR='{{ java_directory }}'
+UNIFI_DIR='{{ unifi_container_data_directory }}'
+JAVA_DIR='{{ unifi_container_java_directory }}'
 KEYSTORE='keystore'
 
 # Uncomment following three lines for CloudKey
