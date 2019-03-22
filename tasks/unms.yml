@@ -1,9 +1,9 @@
 ---
 - name: Install UNMS
-  shell: curl -fsSL https://unms.com/install > /tmp/unms_inst.sh && sudo bash /tmp/unms_inst.sh --data-dir=/data/configs/unms --unattended --ssl-cert-dir=/data/ssl/prettybaked --ssl-cert=prettybaked.crt --ssl-cert-ca=prettybaked.ca --ssl-cert-key=prettybaked.key --branch=0.13.3
+  shell: "curl -fsSL https://unms.com/install > /tmp/unms_inst.sh && sudo bash /tmp/unms_inst.sh --data-dir={{ unms_config_directory }} --unattended --ssl-cert={{ ssl_certificate }} --ssl-cert-key={{ ssl_private_key }} --branch={{ unms_branch }}"
   args:
     executable: /bin/bash
     creates: /tmp/unms_inst.sh
   environment:
-    UNMS_HOME_DIR: /data/configs/unms
+    UNMS_HOME_DIR: '{{ unms_config_directory }}'
 
