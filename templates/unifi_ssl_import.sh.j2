@@ -32,6 +32,7 @@ UNIFI_SERVICE={{ docker_unifi_container_name }}
 
 # Uncomment following three lines for Debian/Ubuntu
 UNIFI_CONFIG_DIR='{{ unifi_config_directory }}'
+UNIFI_DATA_DIR='{{ unifi_data_directory }}'
 UNIFI_DIR='{{ unifi_container_data_directory }}'
 JAVA_DIR='{{ unifi_container_java_directory }}'
 KEYSTORE='keystore'
@@ -90,7 +91,7 @@ P12_TEMP='keystore.tmp'
 #fi
 
 # Create double-safe keystore backup
-if [ -s "${UNIFI_CONFIG_DIR}/${KEYSTORE}.orig" ]; then
+if [ -s "${UNIFI_DATA_DIR}/${KEYSTORE}.orig" ]; then
 	printf "\nBackup of original keystore exists!\n"
 	printf "\nCreating non-destructive backup as keystore.bak...\n"
 
@@ -110,7 +111,7 @@ fi
 # Export your existing SSL key, cert, and CA data to a PKCS12 file
 printf "\nExporting SSL certificate and key data into temporary PKCS12 file...\n"
 
-openssl pkcs12 -export -in ${SIGNED_CRT} -inkey ${PRIV_KEY} -out ${UNIFI_CONFIG_DIR}/${P12_TEMP} -passout pass:${PASSWORD} -name ${ALIAS}
+openssl pkcs12 -export -in ${SIGNED_CRT} -inkey ${PRIV_KEY} -out ${UNIFI_DATA_DIR}/${P12_TEMP} -passout pass:${PASSWORD} -name ${ALIAS}
 
 #openssl pkcs12 -export \
 #-in ${CHAIN_FILE} \
@@ -139,7 +140,7 @@ EOF
 
 # Clean up temp files
 printf "\nRemoving temporary files...\n"
-rm -f ${UNIFI_CONFIG_DIR}/${P12_TEMP}
+rm -f ${UNIFI_DATA_DIR}/${P12_TEMP}
 
 # Restart the UniFi Controller to pick up the updated keystore
 printf "\nRestarting UniFi Controller to apply new Let's Encrypt SSL certificate...\n"
