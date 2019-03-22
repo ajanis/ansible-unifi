@@ -1,10 +1,17 @@
 ---
 
-java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
+unms_config_directory: /data/configs/unms
+unms_branch: 0.13.3
+
+
 docker_unifi_container_name: unifi
-unifi_config_directory: unifi
-unifi_admin_hostname: unifi-admin.home.prettybaked.com
+
+unifi_admin_host: unifi.example.com
 unifi_config_directory: /data/configs/unifi/data/
-unifi_directory: /usr/lib/unifi/data
-ssl_private_key: /etc/ssl/private/prettybaked.com.key
-ssl_certificate: /etc/ssl/certs/prettybaked.com.pem
+unifi_container_data_directory: /usr/lib/unifi/data
+unifi_container_java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
+
+ssl_private_key: /etc/ssl/private/cert.key
+ssl_certificate: /etc/ssl/certs/cert.pem
+
+unifi_exporter_config_directory: /data/configs/unifi_exporer
