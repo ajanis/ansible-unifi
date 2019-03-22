@@ -7,8 +7,9 @@ unms_branch: 0.13.3
 docker_unifi_container_name: unifi
 
 unifi_admin_host: unifi.example.com
-unifi_config_directory: /data/configs/unifi/data/
-unifi_container_data_directory: /usr/lib/unifi/data
+unifi_config_directory: /data/configs/unifi/
+unifi_data_directory: '{{ unifi_config_directory }}'/data
+unifi_container_data_directory: /config/data
 unifi_container_java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
 ssl_private_key: /etc/ssl/private/cert.key
