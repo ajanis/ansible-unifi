@@ -3,7 +3,7 @@
 - name: Ensure Unifi Data Directory Exists
   file:
     state: directory
-    path: '{{ unifi_config_directory }}/data'
+    path: '{{ unifi_data_directory }}'
     owner: root
     group: root
 
