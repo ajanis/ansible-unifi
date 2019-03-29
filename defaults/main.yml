@@ -1,5 +1,6 @@
 ---
 
+unms_host: "unms.example.com"
 unms_config_directory: /data/configs/unms
 unms_branch: 0.13.3
 
@@ -12,7 +13,7 @@ unifi_data_directory: '{{ unifi_config_directory }}/data'
 unifi_container_data_directory: /config/data
 unifi_container_java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
-ssl_private_key: /etc/ssl/private/cert.key
-ssl_certificate: /etc/ssl/certs/cert.pem
+unifi_ssl_private_key: /path/to/cert.key
+unifi_ssl_certificate: /path/to/cert.crt
 
 unifi_exporter_config_directory: /data/configs/unifi_exporer

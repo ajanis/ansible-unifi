@@ -1,4 +1,12 @@
 ---
-- include_tasks: unifi_admin.yml
-- include_tasks: unms.yml
-- include_tasks: unifi_exporter.yml
+- name: Unifi Admin
+  include_tasks: unifi_admin.yml
+  tags: unifi_admin
+
+- name: UNMS
+  include_tasks: unms.yml
+  tags: unms
+
+- name: Unifi Exporter
+  include_tasks: unifi_exporter.yml
+  tags: exporter

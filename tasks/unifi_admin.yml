@@ -9,7 +9,7 @@
 
 - name: Install SSL Key
   copy:
-    content: "{{ vault_prettybaked_com_ssl_private_key }}"
+    content: "{{ vault_ssl_private_key }}"
     dest: "{{ ssl_private_key }}"
     owner: root
     group: root
@@ -17,11 +17,12 @@
 
 - name: Install SSL Certificate Chain
   copy:
-    content: "{{ vault_prettybaked_com_ssl_certificate }}"
+    content: "{{ vault_ssl_certificate }}"
     dest: "{{ ssl_certificate }}"
     owner: root
     group: root
     mode: 0640
+  register: update_ssl_certificate
 
 - name: Create SSL Import Script
   template:
@@ -36,3 +37,4 @@
   args:
     executable: /bin/bash
   notify: restart_docker_unifi
+  when: update_ssl_certificate.changed
