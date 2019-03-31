@@ -4,30 +4,34 @@
   file:
     state: directory
     path: '{{ unms_config_directory }}/data/cert'
-    owner: root
-    group: root
+    owner:  unms
 
 - name: Install SSL Key
   copy:
     content: "{{ vault_ssl_private_key }}"
     dest: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.key"
-    owner: root
-    group: root
-    mode: 0640
+    owner: unms
+    mode: 0600
 
 - name: Install SSL Certificate Chain
   copy:
     content: "{{ vault_ssl_certificate }}"
     dest: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.crt"
-    owner: root
-    group: root
-    mode: 0640
+    owner: unms
+    mode: 0600
+
+- name: Check for UNMS container services
+  shell: sh -c "docker ps -q -f name=unms"
+  args:
+    executable: /bin/bash
+  register: unms_containers
+
 
 - name: Install UNMS
   shell: "curl -fsSL https://unms.com/install > /tmp/unms_inst.sh && bash /tmp/unms_inst.sh --data-dir={{ unms_config_directory }} --unattended --branch={{ unms_branch }}"
   args:
     executable: /bin/bash
-    creates: /tmp/unms_inst.sh
+  when: unms_containers.stdout_lines | length < 7
   environment:
     UNMS_HOME_DIR: '{{ unms_config_directory }}'
 
