@@ -2,11 +2,14 @@
 - name: Unifi Admin
   include_tasks: unifi_admin.yml
   tags: unifi_admin
+  when: "'unifi' in group_names"
 
 - name: UNMS
   include_tasks: unms.yml
   tags: unms
+  when: "'unms' in group_names"
 
 - name: Unifi Exporter
   include_tasks: unifi_exporter.yml
   tags: exporter
+  when: "'unifi' in group_names"
