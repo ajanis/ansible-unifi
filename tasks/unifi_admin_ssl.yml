@@ -1,0 +1,8 @@
+---
+
+- name: Build SSL Keystore for Unifi Admin
+  shell: '{{ unifi_config_directory }}/unifi_ssl_import.sh >> /var/log/docker_unifi_ssl_upgrade.log'
+  args:
+    executable: /bin/bash
+  notify: restart docker_unifi
+  when: update_ssl_certificate.changed
