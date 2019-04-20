@@ -1,7 +1,10 @@
-- name: restart_docker_unifi
-  service:
+- name: restart docker_unifi
+  systemd:
     name: docker-unifi
     state: restarted
+    enabled: yes
+    daemon_reload: yes
+
 - name: restart unifi_exporter
   systemd:
     name: docker-unifi_exporter
