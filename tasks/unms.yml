@@ -21,11 +21,11 @@
     mode: 0600
 
 - name: Check for UNMS container services
-  shell: sh -c "docker ps -q -f name=unms"
+  command: "docker ps -q -f name=unms"
   args:
     executable: /bin/bash
   register: unms_containers
-
+  changed_when: False
 
 - name: Install UNMS
   shell: "curl -fsSL https://unms.com/install > /tmp/unms_inst.sh && bash /tmp/unms_inst.sh --data-dir={{ unms_config_directory }} --unattended --branch={{ unms_branch }}"
