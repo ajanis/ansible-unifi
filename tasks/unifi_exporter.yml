@@ -1,4 +1,11 @@
 ---
+- name: Ensure Unifi-Exporter Config Directory Exists
+  file:
+    state: directory
+    path: '{{ unifi_exporter_config_directory }}'
+    owner: root
+    group: root
+
 - name: Generate Unifi Prometheus Collector config file
   template:
     src: unifi_exporter_config.yml.j2
