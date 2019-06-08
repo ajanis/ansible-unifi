@@ -5,4 +5,6 @@
   args:
     executable: /bin/bash
   notify: restart docker_unifi
-  when: update_ssl_certificate.changed
+  when: 
+    - unifi_enable_ssl
+    - update_ssl_certificate.changed
