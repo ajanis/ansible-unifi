@@ -1,19 +1,22 @@
 ---
+data_mount_root: /data
+configs_directory: configs
 
-unms_host: "unms.example.com"
-unms_config_directory: /data/configs/unms
+unms_host: "unms.{{ www_domain | default('example.com') }}"
+unms_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unms"
 unms_branch: 0.13.3
-
+unms_enable_ssl: False
 
 docker_unifi_container_name: unifi
-
-unifi_admin_host: unifi.example.com
-unifi_config_directory: /data/configs/unifi/
+unifi_admin_host: "unifi.{{ www_domain | default('example.com') }}"
+unifi_admin_url: "https://{{ unifi_admin_host }}:8443"
+unifi_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi/"
 unifi_data_directory: '{{ unifi_config_directory }}/data'
 unifi_container_data_directory: /config/data
 unifi_container_java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
+unifi_enable_ssl: False
+unifi_ssl_private_key: "{{ ssl_private_key | default('') }}"
+unifi_ssl_certificate: "{{ ssl_certificate | default('')}}"
 
-unifi_ssl_private_key: /path/to/cert.key
-unifi_ssl_certificate: /path/to/cert.crt
-
-unifi_exporter_config_directory: /data/configs/unifi_exporer
+unifi_exporter_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi_exporter"
+unifi_admin_site: default
