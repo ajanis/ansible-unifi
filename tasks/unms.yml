@@ -12,6 +12,7 @@
     dest: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.key"
     owner: unms
     mode: 0600
+  when: unms_enable_ssl
 
 - name: Install SSL Certificate Chain
   copy:
@@ -19,6 +20,7 @@
     dest: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.crt"
     owner: unms
     mode: 0600
+  when: unms_enable_ssl
 
 - name: Check for UNMS container services
   command: "docker ps -q -f name=unms"
@@ -34,4 +36,3 @@
   when: unms_containers.stdout_lines | length < 7
   environment:
     UNMS_HOME_DIR: '{{ unms_config_directory }}'
-
