@@ -14,6 +14,7 @@
     owner: root
     group: root
     mode: 0640
+  when: unifi_enable_ssl
 
 - name: Install SSL Certificate Chain
   copy:
@@ -23,6 +24,7 @@
     group: root
     mode: 0640
   register: update_ssl_certificate
+  when: unifi_enable_ssl
 
 - name: Create SSL Import Script
   template:
@@ -31,3 +33,4 @@
     mode: 0775
     owner: root
     group: root
+  when: unifi_enable_ssl
