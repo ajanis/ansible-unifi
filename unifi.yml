@@ -3,31 +3,33 @@
   hosts: unifi
   become: True
   tasks:
-    - import_role:
+    - include_role:
         name: common
-    - import_role:
+    - include_role:
         name: openldap
-    - import_role:
+      when:  openldap_server_ip is defined and openldap_server_ip != None
+    - include_role:
         name: ceph-fs
       when:
         - shared_storage
         - storage_backend == "cephfs"
-    - import_role:
+    - include_role:
         name: nfs
       when:
         - shared_storage
         - storage_backend == "nfs"
-    - import_role:
+    - include_role:
         name: unifi
         tasks_from: unifi_admin
-    - import_role:
+        public: True
+    - include_role:
         name: unifi
         tasks_from: unifi_exporter
-    - import_role:
+    - include_role:
         name: docker
-    - import_role:
+    - include_role:
         name: unifi
         tasks_from: unifi_admin_ssl
-    - import_role:
+    - include_role:
         name: telegraf
       when: "'telegraf' in group_names"
