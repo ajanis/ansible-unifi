@@ -8,16 +8,16 @@
 
 - name: Install SSL Key
   copy:
-    content: "{{ vault_ssl_private_key }}"
-    dest: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.key"
+    content: "{{ ssl_privkey }}"
+    dest: "{{ unms_ssl_keypath }}"
     owner: unms
     mode: 0600
   when: unms_enable_ssl
 
 - name: Install SSL Certificate Chain
   copy:
-    content: "{{ vault_ssl_certificate }}"
-    dest: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.crt"
+    content: "{{ ssl_certchain }}"
+    dest: "{{ unms_ssl_certpath }}"
     owner: unms
     mode: 0600
   when: unms_enable_ssl

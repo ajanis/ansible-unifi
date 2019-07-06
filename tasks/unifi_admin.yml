@@ -9,8 +9,8 @@
 
 - name: Install SSL Key
   copy:
-    content: "{{ vault_ssl_private_key }}"
-    dest: "{{ ssl_private_key }}"
+    content: "{{ ssl_privkey }}"
+    dest: "{{ ssl_keypath }}"
     owner: root
     group: root
     mode: 0640
@@ -18,8 +18,8 @@
 
 - name: Install SSL Certificate Chain
   copy:
-    content: "{{ vault_ssl_certificate }}"
-    dest: "{{ ssl_certificate }}"
+    content: "{{ ssl_certchain }}"
+    dest: "{{ ssl_certpath }}"
     owner: root
     group: root
     mode: 0640

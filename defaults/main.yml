@@ -15,8 +15,16 @@ unifi_data_directory: '{{ unifi_config_directory }}/data'
 unifi_container_data_directory: /config/data
 unifi_container_java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 unifi_enable_ssl: False
-unifi_ssl_private_key: "{{ ssl_private_key | default('') }}"
-unifi_ssl_certificate: "{{ ssl_certificate | default('')}}"
 
 unifi_exporter_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi_exporter"
 unifi_admin_site: default
+
+
+ssl_privkey:
+ssl_certchain:
+
+ssl_certpath:
+ssl_keypath:
+
+unms_ssl_certpath: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.crt"
+unms_ssl_keypath: "{{ unms_config_directory }}/data/cert/{{ unms_host }}.key"
