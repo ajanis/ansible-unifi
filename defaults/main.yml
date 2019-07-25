@@ -10,7 +10,7 @@ unms_enable_ssl: False
 docker_unifi_container_name: unifi
 unifi_admin_host: "unifi.{{ www_domain | default('example.com') }}"
 unifi_admin_url: "https://{{ unifi_admin_host }}:8443"
-unifi_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi/"
+unifi_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi"
 unifi_data_directory: '{{ unifi_config_directory }}/data'
 unifi_container_data_directory: /config/data
 unifi_container_java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
