@@ -16,6 +16,9 @@ unifi_container_data_directory: /config/data
 unifi_container_java_directory: /usr/lib/jvm/java-1.8.0-openjdk-amd64
 unifi_enable_ssl: False
 
+unifi_snmp_v3_password: "{{ vault_unifi_snmp_v3_password | default('') }}"
+unifi_snmp_v3_username: telegraf
+
 unifi_exporter_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi_exporter"
 unifi_admin_site: default
 
