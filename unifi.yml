@@ -20,16 +20,23 @@
         - storage_backend == "nfs"
     - include_role:
         name: unifi
-        tasks_from: unifi_admin
-        public: True
-    - include_role:
-        name: unifi
-        tasks_from: unifi_exporter
+      tags:
+        - unifi
+        - unifi_admin
+        - unms
+        - exporter
     - include_role:
         name: docker
     - include_role:
         name: unifi
         tasks_from: unifi_admin_ssl
+        apply:
+          tags:
+            - unifi
+            - unifi_admin
+            - unifi_admin_ssl
+      tags:
+        - unifi_admin_ssl
     - include_role:
         name: telegraf
       when: "'telegraf' in group_names"
