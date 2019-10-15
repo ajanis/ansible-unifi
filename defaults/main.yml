@@ -4,7 +4,6 @@ configs_directory: configs
 
 unms_host: "unms.{{ www_domain | default('example.com') }}"
 unms_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unms"
-unms_branch: 0.13.3
 unms_enable_ssl: False
 
 docker_unifi_container_name: unifi
