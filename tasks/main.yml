@@ -1,15 +1,51 @@
 ---
 - name: Unifi Admin
-  include_tasks: unifi_admin.yml
-  tags: unifi_admin
+  include_tasks:
+    file: unifi_admin.yml
+    apply:
+      tags:
+        - unifi_admin
+        - unifi
+  tags:
+    - unifi_admin
+    - unifi
   when: "'unifi' in group_names"
 
 - name: UNMS
-  include_tasks: unms.yml
-  tags: unms
+  include_tasks:
+    file: unms.yml
+    apply:
+      tags:
+        - unms
+        - unifi
+  tags:
+    - unms
+    - unifi
   when: "'unms' in group_names"
 
 - name: Unifi Exporter
-  include_tasks: unifi_exporter.yml
-  tags: exporter
+  include_tasks:
+    file: unifi_exporter.yml
+    apply:
+      tags:
+        - exporter
+        - unifi
+  tags:
+    - exporter
+    - unifi
+  when: "'unifi' in group_names"
+
+- name: Build Unifi Admin SSL Cert
+  include_tasks:
+    file: unifi_admin_ssl.yml
+    apply:
+      tags:
+        - unifi_admin_ssl
+        - unifi_admin
+        - unifi
+  tags:
+    - never
+    - unifi_admin
+    - unifi_admin_ssl
+    - unifi
   when: "'unifi' in group_names"
