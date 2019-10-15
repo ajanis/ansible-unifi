@@ -25,18 +25,12 @@
         - unifi_admin
         - unms
         - exporter
+        - unifi_admin_ssl
     - include_role:
         name: docker
     - include_role:
         name: unifi
         tasks_from: unifi_admin_ssl
-        apply:
-          tags:
-            - unifi
-            - unifi_admin
-            - unifi_admin_ssl
-      tags:
-        - unifi_admin_ssl
     - include_role:
         name: telegraf
       when: "'telegraf' in group_names"
