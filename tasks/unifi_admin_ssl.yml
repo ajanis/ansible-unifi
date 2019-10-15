@@ -1,4 +1,31 @@
 ---
+- name: Install SSL Key
+  copy:
+    content: "{{ ssl_privkey }}"
+    dest: "{{ ssl_keypath }}"
+    owner: root
+    group: root
+    mode: 0640
+  when: unifi_enable_ssl
+
+- name: Install SSL Certificate Chain
+  copy:
+    content: "{{ ssl_certchain }}"
+    dest: "{{ ssl_certpath }}"
+    owner: root
+    group: root
+    mode: 0640
+  register: update_ssl_certificate
+  when: unifi_enable_ssl
+
+- name: Create SSL Import Script
+  template:
+    src: unifi_ssl_import.sh.j2
+    dest: '{{ unifi_config_directory }}/unifi_ssl_import.sh'
+    mode: 0775
+    owner: root
+    group: root
+  when: unifi_enable_ssl
 
 - name: Build SSL Keystore for Unifi Admin
   shell: '{{ unifi_config_directory }}/unifi_ssl_import.sh >> /var/log/docker_unifi_ssl_upgrade.log'
