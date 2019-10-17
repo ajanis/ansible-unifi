@@ -19,6 +19,7 @@
         - unms
         - unifi
   tags:
+    - never
     - unms
     - unifi
   when: "'unms' in group_names"
