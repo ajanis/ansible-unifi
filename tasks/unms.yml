@@ -1,5 +1,19 @@
 ---
 
+- name: Create local UNMS group
+  group:
+    name: unms
+    gid: 1000
+    state: present
+
+- name: Create local UNMS user
+  user:
+    name: unms
+    uid: 1000
+    group: unms
+    create_home: yes
+    home: /var/lib/unms
+
 - name: Ensure UNMS Config Directories Exist
   file:
     state: directory
