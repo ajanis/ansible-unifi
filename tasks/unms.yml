@@ -43,7 +43,7 @@
   register: unms_containers
   changed_when: False
 
-- name: Install UNMS
+- name: Install UNMS # noqa 303
   shell: "curl -fsSL https://unms.com/v1/install > /tmp/unms_inst.sh && bash /tmp/unms_inst.sh --data-dir={{ unms_config_directory }} --unattended --update"
   args:
     executable: /bin/bash
