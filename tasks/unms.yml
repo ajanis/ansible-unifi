@@ -37,7 +37,7 @@
   when: unms_enable_ssl
 
 - name: Check for UNMS container services
-  command: "docker ps -q -f name=unms"
+  shell: "docker ps -q -f name=unms"
   args:
     executable: /bin/bash
   register: unms_containers
