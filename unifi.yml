@@ -1,36 +1,28 @@
 ---
-- name: "[Ubiquiti] :: Deploy Ubiquiti management services Unifi-Admin and UNMS with Monitoring Services (Telegraf, Unifi-Prometheus-Exporter).  Includes OpenLDAP-Client, CephFS/NFS"
-  hosts: unifi
-  become: True
+- name: Deploy containerized Ubiquiti UNMS Stack and Unifi-Admin Server
+  hosts:
+    - unifi
+    - unms
+  remote_user: root
+  gather_facts: yes
   tasks:
-    - include_role:
+    - import_role:
         name: common
-    - include_role:
+    - import_role:
         name: openldap
       when:  openldap_server_ip is defined and openldap_server_ip != None
-    - include_role:
+    - import_role:
         name: ceph-fs
       when:
         - shared_storage
         - storage_backend == "cephfs"
-    - include_role:
-        name: nfs
-      when:
-        - shared_storage
-        - storage_backend == "nfs"
-    - include_role:
+    - import_role:
         name: unifi
-      tags:
-        - unifi
-        - unifi_admin
-        - unms
-        - exporter
-        - unifi_admin_ssl
-    - include_role:
+    - import_role:
         name: docker
-    - include_role:
+    - import_role:
         name: unifi
         tasks_from: unifi_admin_ssl
-    - include_role:
+    - import_role:
         name: telegraf
       when: "'telegraf' in group_names"
