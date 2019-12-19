@@ -18,3 +18,6 @@
   import_tasks:
     file: unifi_admin_ssl.yml
   when: "'unifi' in group_names"
+  tags:
+    - never
+    - unifi_ssl
