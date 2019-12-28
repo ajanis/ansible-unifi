@@ -19,22 +19,41 @@
     state: directory
     path: '{{ unms_config_directory }}/data/cert'
     owner:  unms
+    group: unms
 
 - name: Install SSL Key
   copy:
     content: "{{ ssl_privkey }}"
-    dest: "{{ unms_ssl_keypath }}"
+    dest: "{{ unms_cert_directory }}/{{ unms_ssl_key }}"
     owner: unms
+    group: unms
     mode: 0600
   when: unms_enable_ssl
 
 - name: Install SSL Certificate Chain
   copy:
     content: "{{ ssl_certchain }}"
-    dest: "{{ unms_ssl_certpath }}"
+    dest: "{{ unms_cert_directory }}/{{ unms_ssl_cert }}"
     owner: unms
+    group: unms
     mode: 0600
   when: unms_enable_ssl
+
+- name: Relink UNMS SSL Cert
+  file:
+    state: link
+    src: "{{ unms_cert_directory }}/{{ unms_ssl_cert }}"
+    dest: "{{ unms_cert_directory }}/live.crt"
+    owner: unms
+    group: unms
+
+- name: Relink UNMS SSL Cert
+  file:
+    state: link
+    src: "{{ unms_cert_directory }}/{{ unms_ssl_key }}"
+    dest: "{{ unms_cert_directory }}/live.key"
+    owner: unms
+    group: unms
 
 - name: Check for UNMS container services
   shell: "docker ps -q -f name=unms"
