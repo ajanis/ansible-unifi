@@ -3,7 +3,7 @@ data_mount_root: /data
 configs_directory: configs
 
 unms_host: "unms.{{ www_domain | default('example.com') }}"
-unms_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unms/"
+unms_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unms"
 unms_data_directory: "{{ unms_config_directory }}/data"
 unms_cert_directory: "{{ unms_data_directory }}/cert"
 unms_ssl_cert: "{{ unms_host }}.crt"
