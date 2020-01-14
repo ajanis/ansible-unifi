@@ -50,30 +50,30 @@
 - name: Relink UNMS SSL Cert
   file:
     state: link
-    src: "{{ unms_cert_directory }}/{{ unms_ssl_key }}"
+    src: "{{ unms_cert_directory }}/localhost.key"
     dest: "{{ unms_cert_directory }}/live.key"
     owner: unms
     group: unms
 
-- name: Check for UNMS container services
-  shell: "docker ps -q -f name=unms"
-  args:
-    executable: /bin/bash
-  register: unms_containers
-  changed_when: False
-
-- name: Install UNMS
-  get_url:
-    url: https://unms.com/v1/install
-    dest: /tmp/unms_inst.sh
-    owner: unms
-    group: unms
-    mode: 0775
-  when: unms_containers.stdout_lines | length < 7
-
-- name: Install UNMS
-  shell:
-    cmd: /tmp/unms_inst.sh --data-dir {{ unms_data_directory }} --ssl-cert-dir {{ unms_cert_directory }} --ssl-cert {{ unms_ssl_cert }} --ssl-cert-key {{ unms_ssl_key }} --unattended --upgrade
-    executable: /bin/bash
-    chdir: /tmp
-  when: unms_containers.stdout_lines | length < 7
+#- name: Check for UNMS container services
+#  shell: "docker ps -q -f name=unms"
+#  args:
+#    executable: /bin/bash
+#  register: unms_containers
+#  changed_when: False
+#
+#- name: Install UNMS
+#  get_url:
+#    url: https://unms.com/v1/install
+#    dest: /tmp/unms_inst.sh
+#    owner: unms
+#    group: unms
+#    mode: 0775
+#  when: unms_containers.stdout_lines | length < 7
+#
+#- name: Install UNMS
+#  shell:
+#    cmd: /tmp/unms_inst.sh --data-dir {{ unms_data_directory }} --ssl-cert-dir {{ unms_cert_directory }} --ssl-cert {{ unms_ssl_cert }} --ssl-cert-key {{ unms_ssl_key }} --unattended --upgrade
+#    executable: /bin/bash
+#    chdir: /tmp
+#  when: unms_containers.stdout_lines | length < 7
