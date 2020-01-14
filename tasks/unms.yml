@@ -24,7 +24,7 @@
 - name: Install SSL Key
   copy:
     content: "{{ ssl_privkey }}"
-    dest: "{{ unms_cert_directory }}/{{ unms_ssl_key }}"
+    dest: "{{ unms_cert_directory }}/localhost.key"
     owner: unms
     group: unms
     mode: 0600
@@ -33,7 +33,7 @@
 - name: Install SSL Certificate Chain
   copy:
     content: "{{ ssl_certchain }}"
-    dest: "{{ unms_cert_directory }}/{{ unms_ssl_cert }}"
+    dest: "{{ unms_cert_directory }}/localhost.crt"
     owner: unms
     group: unms
     mode: 0600
@@ -42,7 +42,7 @@
 - name: Relink UNMS SSL Cert
   file:
     state: link
-    src: "{{ unms_cert_directory }}/{{ unms_ssl_cert }}"
+    src: "{{ unms_cert_directory }}/localhost.crt"
     dest: "{{ unms_cert_directory }}/live.crt"
     owner: unms
     group: unms
