@@ -2,6 +2,9 @@
 data_mount_root: /data
 configs_directory: configs
 
+unms_version: 1.1.3
+
+
 unms_host: "unms.{{ www_domain | default('example.com') }}"
 unms_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unms"
 unms_data_directory: "{{ unms_config_directory }}/data"
