@@ -3,16 +3,22 @@
   import_tasks:
     file: unifi_admin.yml
   when: "'unifi' in group_names"
+  tags:
+    - unifi_admin
 
 - name: UNMS
   import_tasks:
     file: unms.yml
   when: "'unms' in group_names"
+  tags:
+    - unms
 
 - name: Unifi Exporter
   import_tasks:
     file: unifi_exporter.yml
   when: "'unifi' in group_names"
+  tags:
+    - unifi_exporter
 
 - name: Build Unifi Admin SSL Cert
   import_tasks:
@@ -21,3 +27,4 @@
   tags:
     - never
     - unifi_ssl
+    - unifi_admin
