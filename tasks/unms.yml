@@ -42,7 +42,7 @@
 - name: Relink UNMS SSL Cert
   file:
     state: link
-    src: "{{ unms_cert_directory }}/localhost.crt"
+    src: "localhost.crt"
     dest: "{{ unms_cert_directory }}/live.crt"
     owner: unms
     group: unms
@@ -50,7 +50,7 @@
 - name: Relink UNMS SSL Cert
   file:
     state: link
-    src: "{{ unms_cert_directory }}/localhost.key"
+    src: "localhost.key"
     dest: "{{ unms_cert_directory }}/live.key"
     owner: unms
     group: unms
