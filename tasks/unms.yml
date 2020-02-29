@@ -3,13 +3,12 @@
 - name: Create local UNMS group
   group:
     name: unms
-    gid: 1000
     state: present
 
 - name: Create local UNMS user
   user:
     name: unms
-    uid: 1000
+    uid: "{{ unms_user_id }}"
     group: unms
     create_home: yes
     home: /var/lib/unms
@@ -17,16 +16,33 @@
 - name: Ensure UNMS Config Directories Exist
   file:
     state: directory
-    path: '{{ unms_config_directory }}/data/cert'
+    path: '{{ item }}'
     owner:  unms
-    group: unms
+  loop:
+    - "{{ unms_config_directory }}"
+    - "{{ unms_data_directory }}"
+    - "{{ unms_app_directory }}"
+    - "{{ unms_pgconf_directory }}"
+    - "{{ unms_log_directory }}"
+    - "{{ unms_redis_directory }}"
+    - "{{ unms_postgres_directory }}"
+    - "{{ unms_rabbitmq_directory }}"
+    - "{{ unms_ucrm_directory }}"
+    - "{{ unms_firmware_directory }}"
+    - "{{ unms_cert_directory }}"
+
+- name: Create UNMS postgresql user script
+  template:
+    src: create-users.sh.j2
+    dest: "{{ unms_pgconf_directory }}/create-users.sh"
+    owner: unms
+    mode: 0775
 
 - name: Install SSL Key
   copy:
     content: "{{ ssl_privkey }}"
     dest: "{{ unms_cert_directory }}/localhost.key"
     owner: unms
-    group: unms
     mode: 0600
   when: unms_enable_ssl
 
@@ -35,7 +51,6 @@
     content: "{{ ssl_certchain }}"
     dest: "{{ unms_cert_directory }}/localhost.crt"
     owner: unms
-    group: unms
     mode: 0600
   when: unms_enable_ssl
 
@@ -45,7 +60,6 @@
     src: "localhost.crt"
     dest: "{{ unms_cert_directory }}/live.crt"
     owner: unms
-    group: unms
 
 - name: Relink UNMS SSL Cert
   file:
@@ -53,7 +67,6 @@
     src: "localhost.key"
     dest: "{{ unms_cert_directory }}/live.key"
     owner: unms
-    group: unms
 
 #- name: Check for UNMS container services
 #  shell: "docker ps -q -f name=unms"
