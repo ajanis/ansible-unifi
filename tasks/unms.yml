@@ -4,20 +4,35 @@
   group:
     name: unms
     state: present
+  register: unms_group_create
+
+- debug:
+    var: unms_group_create.gid
+  tags:
+    - never
+    - debug
 
 - name: Create local UNMS user
   user:
     name: unms
-    uid: "{{ unms_user_id }}"
-    group: unms
+    uid: "{% if unms_user_id is defined %}{{ unms_user_id }}{% else %}{{ omit }}{% endif %}"
+    group: "{{ unms_group_create.gid }}"
     create_home: yes
     home: /var/lib/unms
+  register: unms_user_create
+
+- debug:
+    var: "unms_user_create.uid"
+  tags:
+    - never
+    - debug
 
 - name: Ensure UNMS Config Directories Exist
   file:
     state: directory
     path: '{{ item }}'
-    owner:  unms
+    owner: "{{ unms_user_create.uid }}"
+    group: "{{ unms_group_create.gid }}"
   loop:
     - "{{ unms_config_directory }}"
     - "{{ unms_data_directory }}"
@@ -35,14 +50,16 @@
   template:
     src: create-users.sh.j2
     dest: "{{ unms_pgconf_directory }}/create-users.sh"
-    owner: unms
+    owner: "{{ unms_user_create.uid }}"
+    group: "{{ unms_group_create.gid }}"
     mode: 0775
 
 - name: Install SSL Key
   copy:
     content: "{{ ssl_privkey }}"
     dest: "{{ unms_cert_directory }}/localhost.key"
-    owner: unms
+    owner: "{{ unms_user_create.uid }}"
+    group: "{{ unms_group_create.gid }}"
     mode: 0600
   when: unms_enable_ssl
 
@@ -50,7 +67,8 @@
   copy:
     content: "{{ ssl_certchain }}"
     dest: "{{ unms_cert_directory }}/localhost.crt"
-    owner: unms
+    owner: "{{ unms_user_create.uid }}"
+    group: "{{ unms_group_create.gid }}"
     mode: 0600
   when: unms_enable_ssl
 
@@ -59,14 +77,16 @@
     state: link
     src: "localhost.crt"
     dest: "{{ unms_cert_directory }}/live.crt"
-    owner: unms
+    owner: "{{ unms_user_create.uid }}"
+    group: "{{ unms_group_create.gid }}"
 
 - name: Relink UNMS SSL Cert
   file:
     state: link
     src: "localhost.key"
     dest: "{{ unms_cert_directory }}/live.key"
-    owner: unms
+    owner: "{{ unms_user_create.uid }}"
+    group: "{{ unms_group_create.gid }}"
 
 #- name: Check for UNMS container services
 #  shell: "docker ps -q -f name=unms"
@@ -79,7 +99,8 @@
 #  get_url:
 #    url: https://unms.com/v1/install
 #    dest: /tmp/unms_inst.sh
-#    owner: unms
+#    owner: "{{ unms_user_create.uid }}"
+#    group: "{{ unms_group_create.gid }}"
 #    group: unms
 #    mode: 0775
 #  when: unms_containers.stdout_lines | length < 7
