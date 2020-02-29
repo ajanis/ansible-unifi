@@ -4,8 +4,6 @@ configs_directory: configs
 
 unms_version: 1.1.5
 
-
-#unms_host: "unms.{{ www_domain | default('example.com') }}"
 unms_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unms"
 unms_data_directory: "{{ unms_config_directory }}/data"
 unms_app_directory: "{{ unms_config_directory }}/app"
@@ -20,6 +18,8 @@ unms_firmware_directory: "{{ unms_data_directory }}/firmwares"
 unms_cert_directory: "{{ unms_data_directory }}/cert"
 unms_enable_ssl: False
 
+unms_user_id: "1000"
+
 unms_postgres_host: "unms-postgres"
 unms_admin_postgres_user: "root"
 unms_admin_postgres_password: "jh6UE6RI5xtPqtHbs1WQkZepftu4IH9NX2SgnkQIbBxXFCXP"
@@ -32,7 +32,6 @@ unms_ucrm_postgres_schema: "ucrm"
 unms_ucrm_postgres_user: "ucrm"
 unms_ucrm_postgres_password: "ypELME0RTpkwi045ELL8sHGF6ZAJE4TEPbu5hmnqIXpzdjMF"
 unms_pgdata: "/var/lib/postgresql/data/pgdata"
-unms_user_id: "1000"
 unms_demo: "false"
 unms_node_env: "production"
 unms_http_port: "8081"
@@ -44,7 +43,6 @@ unms_public_https_port: "443"
 unms_public_ws_port: ""
 unms_nginx_https_port: "443"
 unms_nginx_http_port: "80"
-unms_nginx_uid: "1000"
 unms_ssl_cert: "localhost.crt"
 unms_ssl_cert_key: "localhost.key"
 unms_ssl_cert_ca: ""
@@ -68,10 +66,8 @@ unms_secret: "BPee0eCuyJqmcpqCDA2WjzKtCXP1b2k7aerqdDV0QxOvAvoe"
 unms_ucrm_user: "unms"
 unms_host: "unms"
 unms_base_url: "/v2.1"
-unms_fluentd_uid: "1000"
 unms_fluentd_port: "24224"
 unms_rabbitmq_server_additional_erl_args: "-rabbit channel_max 4096"
-
 docker_unifi_container_name: unifi
 unifi_admin_host: "unifi.{{ www_domain | default('example.com') }}"
 unifi_admin_url: "https://{{ unifi_admin_host }}:8443"
