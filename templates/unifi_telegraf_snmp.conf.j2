@@ -1,0 +1,104 @@
+[[inputs.snmp]]
+    name = "snmp.UAP"
+    agents = [ "{{ telegraf_uap_ips|join('", "') }}" ]
+    interval = "10s"
+    timeout = "10s"
+    retries = 3
+    version = 1
+    community = "public"
+    max_repetitions = 1
+[[inputs.snmp.field]]
+    is_tag = true
+    name = "sysName"
+    oid = "RFC1213-MIB::sysName.0"
+[[inputs.snmp.field]]
+    name = "sysObjectID"
+    oid = "RFC1213-MIB::sysObjectID.0"
+[[inputs.snmp.field]]
+    name = "sysDescr"
+    oid = "RFC1213-MIB::sysDescr.0"
+[[inputs.snmp.field]]
+    name = "sysContact"
+    oid = "RFC1213-MIB::sysContact.0"
+[[inputs.snmp.field]]
+    name = "sysLocation"
+    oid = "RFC1213-MIB::sysLocation.0"
+[[inputs.snmp.field]]
+    name = "sysUpTime"
+    oid = "RFC1213-MIB::sysUpTime.0"
+[[inputs.snmp.field]]
+    name = "unifiApSystemModel"
+    oid = "UBNT-UniFi-MIB::unifiApSystemModel"
+[[inputs.snmp.field]]
+    name = "unifiApSystemVersion"
+    oid = "UBNT-UniFi-MIB::unifiApSystemVersion"
+[[inputs.snmp.field]]
+    name = "memTotal"
+    oid = "FROGFOOT-RESOURCES-MIB::memTotal.0"
+[[inputs.snmp.field]]
+    name = "memFree"
+    oid = "FROGFOOT-RESOURCES-MIB::memFree.0"
+[[inputs.snmp.field]]
+    name = "memBuffer"
+    oid = "FROGFOOT-RESOURCES-MIB::memBuffer.0"
+[[inputs.snmp.field]]
+    name = "memCache"
+    oid = "FROGFOOT-RESOURCES-MIB::memCache.0"
+[[inputs.snmp.table]]
+    oid = "IF-MIB::ifTable"
+[[inputs.snmp.table.field]]
+    is_tag = true
+    oid = "IF-MIB::ifDescr"
+[[inputs.snmp.table]]
+    oid = "UBNT-UniFi-MIB::unifiRadioTable"
+[[inputs.snmp.table.field]]
+    is_tag = true
+    oid = "UBNT-UniFi-MIB::unifiRadioName"
+[[inputs.snmp.table.field]]
+    is_tag = true
+    oid = "UBNT-UniFi-MIB::unifiRadioRadio"
+[[inputs.snmp.table]]
+    oid = "UBNT-UniFi-MIB::unifiVapTable"
+[[inputs.snmp.table.field]]
+    is_tag = true
+    oid = "UBNT-UniFi-MIB::unifiVapName"
+[[inputs.snmp.table.field]]
+    is_tag = true
+    oid = "UBNT-UniFi-MIB::unifiVapRadio"
+[[inputs.snmp.table]]
+    oid = "UBNT-UniFi-MIB::unifiIfTable"
+[[inputs.snmp.table.field]]
+    is_tag = true
+    oid = "UBNT-UniFi-MIB::unifiIfName"
+[[inputs.snmp.table]]
+    oid = "FROGFOOT-RESOURCES-MIB::loadTable"
+[[inputs.snmp.table.field]]
+    is_tag = true
+    oid = "FROGFOOT-RESOURCES-MIB::loadDescr"
+[[inputs.snmp.field]]
+    name = "snmpInPkts"
+    oid = "SNMPv2-MIB::snmpInPkts.0"
+[[inputs.snmp.field]]
+    name = "snmpInGetRequests"
+    oid = "SNMPv2-MIB::snmpInGetRequests.0"
+[[inputs.snmp.field]]
+    name = "snmpInGetNexts"
+    oid = "SNMPv2-MIB::snmpInGetNexts.0"
+[[inputs.snmp.field]]
+    name = "snmpInTotalReqVars"
+    oid = "SNMPv2-MIB::snmpInTotalReqVars.0"
+[[inputs.snmp.field]]
+    name = "snmpInGetResponses"
+    oid = "SNMPv2-MIB::snmpInGetResponses.0"
+[[inputs.snmp.field]]
+    name = "snmpOutPkts"
+    oid = "SNMPv2-MIB::snmpOutPkts.0"
+[[inputs.snmp.field]]
+    name = "snmpOutGetRequests"
+    oid = "SNMPv2-MIB::snmpOutGetRequests.0"
+[[inputs.snmp.field]]
+    name = "snmpOutGetNexts"
+    oid = "SNMPv2-MIB::snmpOutGetNexts.0"
+[[inputs.snmp.field]]
+    name = "snmpOutGetResponses"
+    oid = "SNMPv2-MIB::snmpOutGetResponses.0"

@@ -1,0 +1,80 @@
+[[inputs.exec]]
+    commands = [ "{{ /etc/telegraf/telegraf.d/scripts/edgeswitch_load.sh telegraf_edgeswitch_ips|join('", "') }}" ]
+    timeout = "1s"
+    interval = "5s"
+    data_format = "influx"
+[[inputs.snmp]]
+    name = "snmp.EdgeOS"
+    agents = [ "{{ telegraf_edgeswitch_ips|join('", "') }}" ]
+    interval = "30s"
+    timeout = "15s"
+    retries = 3
+    version = 2
+    community = "public"
+    max_repetitions = 1
+    fielddrop = [ "laErrorFlag", "laErrMessage" ]
+[[inputs.snmp.field]]
+    name = "sysName"
+    oid = "SNMPv2-MIB::sysName.0"
+    is_tag = true
+[[inputs.snmp.field]]
+    name = "sysObjectID"
+    oid = "SNMPv2-MIB::sysObjectID.0"
+[[inputs.snmp.field]]
+    name = "sysDescr"
+    oid = "ENTITY-MIB::entPhysicalModelName.2"
+[[inputs.snmp.field]]
+    name = "emSoftwareRev"
+    oid = "ENTITY-MIB::entPhysicalSoftwareRev.1"
+[[inputs.snmp.field]]
+    name = "emSerialNum"
+    oid = "ENTITY-MIB::entPhysicalSerialNum.1"
+[[inputs.snmp.field]]
+    name = "sysUpTime"
+    oid = "iso.3.6.1.2.1.1.3.0"
+[[inputs.snmp.field]]
+    name = "fpMemAvailable"
+    oid = "1.3.6.1.4.1.4413.1.1.1.1.4.2.0"
+[[inputs.snmp.field]]
+    name = "fpMemFree"
+    oid = "1.3.6.1.4.1.4413.1.1.1.1.4.1.0"
+[[inputs.snmp.table]]
+    oid = "IF-MIB::ifTable"
+[[inputs.snmp.table.field]]
+    oid = "IF-MIB::ifName"
+    is_tag = true
+[[inputs.snmp.table]]
+    oid = "IF-MIB::ifXTable"
+[[inputs.snmp.table.field]]
+    oid = "IF-MIB::ifAlias"
+    is_tag = true
+[[inputs.snmp.table.field]]
+    oid = "IF-MIB::ifName"
+    is_tag = true
+[[inputs.snmp.field]]
+    name = "snmpInPkts"
+    oid = "SNMPv2-MIB::snmpInPkts.0"
+[[inputs.snmp.field]]
+    name = "snmpInGetRequests"
+    oid = "SNMPv2-MIB::snmpInGetRequests.0"
+[[inputs.snmp.field]]
+    name = "snmpInGetNexts"
+    oid = "SNMPv2-MIB::snmpInGetNexts.0"
+[[inputs.snmp.field]]
+    name = "snmpInTotalReqVars"
+    oid = "SNMPv2-MIB::snmpInTotalReqVars.0"
+[[inputs.snmp.field]]
+    name = "snmpInGetResponses"
+    oid = "SNMPv2-MIB::snmpInGetResponses.0"
+[[inputs.snmp.field]]
+    name = "snmpOutPkts"
+    oid = "SNMPv2-MIB::snmpOutPkts.0"
+[[inputs.snmp.field]]
+    name = "snmpOutGetRequests"
+    oid = "SNMPv2-MIB::snmpOutGetRequests.0"
+[[inputs.snmp.field]]
+    name = "snmpOutGetNexts"
+    oid = "SNMPv2-MIB::snmpOutGetNexts.0"
+[[inputs.snmp.field]]
+    name = "snmpOutGetResponses"
+    oid = "SNMPv2-MIB::snmpOutGetResponses.0"

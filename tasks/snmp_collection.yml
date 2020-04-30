@@ -1,0 +1,5 @@
+- name: Copy Edgeswitch SNMP Cpu Collector Script
+  copy:
+    src: edgeswitch_load.sh
+    dest: /usr/local/bin/edgeswitch_load.sh
+    mode: 0777
