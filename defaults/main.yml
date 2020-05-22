@@ -15,6 +15,7 @@ unms_postgres_directory: "{{ unms_data_directory }}/postgres"
 unms_rabbitmq_directory: "{{ unms_data_directory }}/rabbitmq"
 unms_ucrm_directory: "{{ unms_data_directory }}/ucrm"
 unms_firmware_directory: "{{ unms_data_directory }}/firmwares"
+unms_siridb_directory: "{{ unms_data_directory }}/siridb"
 unms_cert_directory: "{{ unms_data_directory }}/cert"
 unms_enable_ssl: False
 
