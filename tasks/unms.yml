@@ -45,6 +45,7 @@
     - "{{ unms_ucrm_directory }}"
     - "{{ unms_firmware_directory }}"
     - "{{ unms_cert_directory }}"
+    - "{{ unms_siridb_directory }}"
 
 - name: Create UNMS postgresql user script
   template:
