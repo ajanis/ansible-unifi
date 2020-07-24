@@ -90,9 +90,9 @@
     group: "{{ unms_group_create.gid }}"
 
 
-- name: Unifi Exporter
+- name: Import SNMP Collection Tasks
   import_tasks:
-    file: unifi_exporter.yml
+    file: snmp_collection.yml
 
 
 #- name: Check for UNMS container services
