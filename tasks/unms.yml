@@ -89,6 +89,12 @@
     owner: "{{ unms_user_create.uid }}"
     group: "{{ unms_group_create.gid }}"
 
+
+- name: Unifi Exporter
+  import_tasks:
+    file: unifi_exporter.yml
+
+
 #- name: Check for UNMS container services
 #  shell: "docker ps -q -f name=unms"
 #  args:
