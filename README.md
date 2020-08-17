@@ -106,12 +106,13 @@ ssl_keypath:
 #### group_vars/unifi/vars.yml
 ```yaml
 ---
-unms_version: 1.1.5
+unms_version: 1.2.1
 
 docker_containers:
   unifi:
     description: "Unifi Admin Controller"
     image: linuxserver/unifi-controller:latest
+    restart_policy: unless-stopped
     network_mode: host
     pull: "true"
     ports: []
@@ -121,49 +122,81 @@ docker_containers:
     environment:
       PUID: "0"
       PGID: "0"
+    log-driver: "journald"
+    log_options:
+      tag: unifi-admin/unifi-admin
   unifi_exporter:
     description: "Prometheus Metrics Collector Unifi"
     image: unifi_exporter
+    restart_policy: unless-stopped
+    depends_on:
+      - unifi
     command: "-config.file /etc/unifi_exporter/config.yml"
-    network_mode: host
     volumes:
       - "{{ unifi_exporter_config_directory }}:/etc/unifi_exporter"
+    log-driver: "journald"
+    log_options:
+      tag: unifi-exporter/unifi-exporter
+  unifi-poller:
+    description: "Unifi-Poller Utility"
+    image: golift/unifi-poller:latest
+    restart_policy: unless-stopped
+    depends_on:
+      - unifi
+    volumes:
+      - "{{ unifi_poller_config_directory }}:/config"
+    log-driver: "journald"
+    log_options:
+      tag: unifi-poller/unifi-poller
+    network_mode: host
+
 
 docker_compose_projects:
+
   - project_name: unms
     pull: yes
+
     definition:
-      version: '3.4'
+      version: '3.5'
       x-logging: &default-logging
         driver: fluentd
+
       networks:
         internal:
+          name: unms-internal
           driver: bridge
         public:
+          name: unms-public
           driver: bridge
+
       services:
+
         fluentd:
+          container_name: unms-fluentd
           image: "ubnt/unms-fluentd:{{ unms_version }}"
+          tty: true
           networks:
             public:
               aliases:
-                - unms-fluentd
+                - fluentd
           ports:
             - "127.0.0.1:{{ unms_fluentd_port }}:{{ unms_fluentd_port }}"
           volumes:
             - "{{ unms_log_directory }}:/fluentd/log"
           environment:
             FLUENTD_UID: "{{ unms_user_id }}"
+
         redis:
+          container_name: unms-redis
           image: "redis:5.0.5-alpine"
-          restart: on-failure
+          restart: always
           user: "{{ unms_user_id }}"
           depends_on:
             - fluentd
           networks:
             internal:
               aliases:
-                - unms-redis
+                - redis
           volumes:
             - "{{ unms_redis_directory }}:/data/db"
           logging:
@@ -171,18 +204,41 @@ docker_compose_projects:
             options:
               fluentd-async-connect: "true"
               tag: unms-redis
+          tty: true
           command: "redis-server --appendonly yes --dir /data/db/"
-        postgres:
-          image: "postgres:9.6.12-alpine"
-          restart: on-failure
+
+        siridb:
+          container_name: unms-siridb
+          image: "ubnt/unms-siridb:{{ unms_version }}"
           user: "{{ unms_user_id }}"
+          restart: always
+          depends_on:
+            - fluentd
+          networks:
+            internal:
+              aliases:
+                - siridb
+          volumes:
+            - "{{ unms_siridb_directory }}:/var/lib/siridb"
+          logging:
+            << : *default-logging
+            options:
+              fluentd-async-connect: "true"
+              tag: unms-siridb
+
+        postgres:
+          container_name: unms-postgres
+          image: "postgres:9.6.12-alpine"
+          restart: always
+          tty: true
+          #user: "{{ unms_user_id }}"
           command: postgres -c log_min_duration_statement=500 -c deadlock_timeout=5000
           depends_on:
             - fluentd
           networks:
             internal:
               aliases:
-                - unms-postgres
+                - postgres
           volumes:
             - "{{ unms_pgconf_directory }}:/docker-entrypoint-initdb.d"
             - "{{ unms_postgres_directory }}:{{ unms_pgdata }}"
@@ -203,17 +259,20 @@ docker_compose_projects:
             UCRM_POSTGRES_USER: "{{ unms_ucrm_postgres_user }}"
             UCRM_POSTGRES_PASSWORD: "{{ unms_ucrm_postgres_password }}"
             PGDATA: "{{ unms_pgdata }}"
+
         rabbitmq:
+          container_name: unms-rabbitmq
           image: "rabbitmq:3.7.14-alpine"
-          restart: on-failure
+          restart: always
           user: "{{ unms_user_id }}"
+          tty: true
           depends_on:
             - fluentd
           networks:
             internal:
               aliases:
-                - unms-rabbitmq
-          hostname: rabbitmq
+                - rabbitmq
+          hostname: unms-rabbitmq
           volumes:
             - "{{ unms_rabbitmq_directory }}:/var/lib/rabbitmq"
           logging:
@@ -223,9 +282,12 @@ docker_compose_projects:
               tag: unms-rabbitmq
           environment:
             RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "{{ unms_rabbitmq_server_additional_erl_args }}"
+
         unms:
+          container_name: unms
           image: "ubnt/unms:{{ unms_version }}"
-          restart: on-failure
+          restart: always
+          tty: true
           depends_on:
             - fluentd
             - redis
@@ -279,9 +341,12 @@ docker_compose_projects:
             USE_LOCAL_DISCOVERY: "{{ unms_use_local_discovery }}"
           cap_add:
             - NET_ADMIN
+
         ucrm:
+          container_name: ucrm
           image: "ubnt/unms-crm:3.1.2"
-          restart: on-failure
+          restart: always
+          tty: true
           volumes:
             - "{{ unms_ucrm_directory }}:/data"
           command: server_with_migrate
@@ -317,9 +382,12 @@ docker_compose_projects:
             UNMS_TOKEN: "{{ unms_token }}"
             UNMS_BASE_URL: "{{ unms_base_url }}"
             UNMS_POSTGRES_SCHEMA: "{{ unms_unms_postgres_schema }}"
+
         nginx:
+          container_name: unms-nginx
           image: "ubnt/unms-nginx:{{ unms_version }}"
-          restart: on-failure
+          restart: always
+          tty: true
           ports:
             - "{{ unms_nginx_http_port }}:{{ unms_nginx_http_port }}"
             - "{{ unms_nginx_https_port }}:{{ unms_nginx_https_port }}"
@@ -327,10 +395,10 @@ docker_compose_projects:
           networks:
             public:
               aliases:
-                - unms-nginx
+                - nginx
             internal:
               aliases:
-                - unms-nginx
+                - nginx
           volumes:
             - "{{ unms_cert_directory }}:/cert"
             - "{{ unms_firmware_directory }}:/www/firmwares"
@@ -357,9 +425,12 @@ docker_compose_projects:
             UNMS_IP_WHITELIST: "{{ unms_ip_whitelist }}"
             PUBLIC_HTTPS_PORT: "{{ unms_public_https_port }}"
             SECURE_LINK_SECRET: "{{ unms_secure_link_secret }}"
+
         netflow:
+          container_name: unms-netflow
           image: "ubnt/unms-netflow:{{ unms_version }}"
-          restart: on-failure
+          restart: always
+          tty: true
           user: "{{ unms_user_id }}"
           ports:
             - "{{ unms_netflow_port }}:{{ unms_netflow_port }}/udp"
@@ -368,10 +439,10 @@ docker_compose_projects:
           networks:
             internal:
               aliases:
-                - unms-netflow
+                - netflow
             public:
               aliases:
-                - unms-netflow
+                - netflow
           depends_on:
             - fluentd
             - postgres
@@ -393,6 +464,469 @@ docker_build_images:
   unifi_exporter:
     repo: "https://github.com/ajanis/unifi_exporter.git"
 
+telegraf_plugins_extra:
+  - name: docker
+    options:
+      endpoint: "unix:///var/run/docker.sock"
+      timeout: "5s"
+      perdevice: "true"
+      total: "true"
+  - name: syslog
+    options:
+      server: "tcp://:6514"
+
+unifi_accesspoints:
+  - "192.168.0.200"
+  - "192.168.0.202"
+  - "192.168.0.203"
+  - "192.168.0.205"
+unifi_switches:
+  - "192.168.0.209"
+  - "192.168.0.211"
+  
+rsyslog_config: true
+# defines if rsyslog should be configured to listen on tcp/514
+rsyslog_allow_tcp: true
+# sets the TCP port rsyslog should listen on if TCP is enabled. 514 is the IANA assigned port
+rsyslog_tcp_port: "514"
+# defines if rsyslog should be configured to listen on udp/514
+rsyslog_allow_udp: true
+# sets the UDP port rsyslog should listen on if UDP is enabled. 514 is the IANA assigned port
+rsyslog_udp_port: "514"
+# remote rsyslog server configs
+rsyslog_servers:
+  - name: (o)127.0.0.1
+    proto: tcp
+    port: "6514"
+    format: "RSYSLOG_SyslogProtocol23Format"
+    selectors:
+      - "*.*"
+
+telegraf_plugins_extra:
+  - name: docker
+    options:
+      endpoint: "unix:///var/run/docker.sock"
+      timeout: "5s"
+      perdevice: "true"
+      total: "true"
+  - name: syslog
+    options:
+      server: "tcp4://:6514"
+## EdgeSwitch CPU Utilization
+  - name: exec
+    options:
+      commands:
+        - "/usr/local/bin/edgeswitch_load.sh 192.168.0.5"
+        - "/usr/local/bin/edgeswitch_load.sh 192.168.0.6"
+        - "/usr/local/bin/edgeswitch_load.sh 192.168.0.7"
+      timeout: "1s"
+      interval: "5s"
+      data_format: "influx"
+
+## Unifi Switch Metrics
+
+## Ubiquiti AP Devices
+  - name: snmp
+    options:
+      name: "snmp.UAP"
+      agents: "{{ unifi_accesspoints }}"
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      version: 2
+      community: "public"
+      max_repetitions: 1
+  - name: snmp.field
+    options:
+      is_tag: "true"
+      name: "sysName"
+      oid: "RFC1213-MIB::sysName.0"
+  - name: snmp.field
+    options:
+      name: "sysObjectID"
+      oid: "RFC1213-MIB::sysObjectID.0"
+  - name: snmp.field
+    options:
+      name: "sysDescr"
+      oid: "RFC1213-MIB::sysDescr.0"
+  - name: snmp.field
+    options:
+      name: "sysContact"
+      oid: "RFC1213-MIB::sysContact.0"
+  - name: snmp.field
+    options:
+      name: "sysLocation"
+      oid: "RFC1213-MIB::sysLocation.0"
+  - name: snmp.field
+    options:
+      name: "sysUpTime"
+      oid: "RFC1213-MIB::sysUpTime.0"
+  - name: snmp.field
+    options:
+      name: "unifiApSystemModel"
+      oid: "UBNT-UniFi-MIB::unifiApSystemModel"
+  - name: snmp.field
+    options:
+      name: "unifiApSystemVersion"
+      oid: "UBNT-UniFi-MIB::unifiApSystemVersion"
+  - name: snmp.field
+    options:
+      name: "memTotal"
+      oid: "FROGFOOT-RESOURCES-MIB::memTotal.0"
+  - name: snmp.field
+    options:
+      name: "memFree"
+      oid: "FROGFOOT-RESOURCES-MIB::memFree.0"
+  - name: snmp.field
+    options:
+      name: "memBuffer"
+      oid: "FROGFOOT-RESOURCES-MIB::memBuffer.0"
+  - name: snmp.field
+    options:
+      name: "memCache"
+      oid: "FROGFOOT-RESOURCES-MIB::memCache.0"
+  - name: snmp.table
+    options:
+      oid: "IF-MIB::ifTable"
+  - name: snmp.table.field
+    options:
+      is_tag: "true"
+      oid: "IF-MIB::ifDescr"
+  - name: snmp.table
+    options:
+      oid: "UBNT-UniFi-MIB::unifiRadioTable"
+  - name: snmp.table.field
+    options:
+      is_tag: "true"
+      oid: "UBNT-UniFi-MIB::unifiRadioName"
+  - name: snmp.table.field
+    options:
+      is_tag: "true"
+      oid: "UBNT-UniFi-MIB::unifiRadioRadio"
+  - name: snmp.table
+    options:
+      oid: "UBNT-UniFi-MIB::unifiVapTable"
+  - name: snmp.table.field
+    options:
+      is_tag: "true"
+      oid: "UBNT-UniFi-MIB::unifiVapName"
+  - name: snmp.table.field
+    options:
+      is_tag: "true"
+      oid: "UBNT-UniFi-MIB::unifiVapRadio"
+  - name: snmp.table
+    options:
+      oid: "UBNT-UniFi-MIB::unifiIfTable"
+  - name: snmp.table.field
+    options:
+      is_tag: "true"
+      oid: "UBNT-UniFi-MIB::unifiIfName"
+  - name: snmp.table
+    options:
+      oid: "FROGFOOT-RESOURCES-MIB::loadTable"
+  - name: snmp.table.field
+    options:
+      is_tag: "true"
+      oid: "FROGFOOT-RESOURCES-MIB::loadDescr"
+  - name: snmp.field
+    options:
+      name: "snmpInPkts"
+      oid: "SNMPv2-MIB::snmpInPkts.0"
+  - name: snmp.field
+    options:
+      name: "snmpInGetRequests"
+      oid: "SNMPv2-MIB::snmpInGetRequests.0"
+  - name: snmp.field
+    options:
+      name: "snmpInGetNexts"
+      oid: "SNMPv2-MIB::snmpInGetNexts.0"
+  - name: snmp.field
+    options:
+      name: "snmpInTotalReqVars"
+      oid: "SNMPv2-MIB::snmpInTotalReqVars.0"
+  - name: snmp.field
+    options:
+      name: "snmpInGetResponses"
+      oid: "SNMPv2-MIB::snmpInGetResponses.0"
+  - name: snmp.field
+    options:
+      name: "snmpOutPkts"
+      oid: "SNMPv2-MIB::snmpOutPkts.0"
+  - name: snmp.field
+    options:
+      name: "snmpOutGetRequests"
+      oid: "SNMPv2-MIB::snmpOutGetRequests.0"
+  - name: snmp.field
+    options:
+      name: "snmpOutGetNexts"
+      oid: "SNMPv2-MIB::snmpOutGetNexts.0"
+  - name: snmp.field
+    options:
+      name: "snmpOutGetResponses"
+      oid: "SNMPv2-MIB::snmpOutGetResponses.0"
+## EdgeRouter devices
+  - name: snmp
+    options:
+      name: "snmp.EdgeOS"
+      agents:
+        - "192.168.0.5"
+        - "192.168.0.6"
+        - "192.168.0.7"
+      interval: "30s"
+      timeout: "15s"
+      retries: 3
+      version: 2
+      community: "public"
+      max_repetitions: 1
+      fielddrop:
+        - "laErrorFlag"
+        - "laErrMessage"
+#      tagdrop:
+#        diskIODevice:
+#          - "loop*"
+#          - "ram*"
+  - name: snmp.field
+    options:
+      name: "sysName"
+      oid: "SNMPv2-MIB::sysName.0"
+      is_tag: "true"
+  #  System vendor OID
+  - name: snmp.field
+    options:
+      name: "sysObjectID"
+      oid: "SNMPv2-MIB::sysObjectID.0"
+  #  System description
+  - name: snmp.field
+    options:
+      name: "sysDescr"
+      oid: "ENTITY-MIB::entPhysicalModelName.2"
+  #  System Firmware
+  - name: snmp.field
+    options:
+      name: "emSoftwareRev"
+      oid: "ENTITY-MIB::entPhysicalSoftwareRev.1"
+  #  System Serial
+  - name: snmp.field
+    options:
+      name: "emSerialNum"
+      oid: "ENTITY-MIB::entPhysicalSerialNum.1"
+  ## Host/System Resources
+  #  System uptime
+  - name: snmp.field
+    options:
+      name: "sysUpTime"
+      oid: "iso.3.6.1.2.1.1.3.0"
+
+  ## System Memory (physical/virtual)
+
+  # Total Mem
+  - name: snmp.field
+    options:
+      name: "fpMemAvailable"
+      oid: "1.3.6.1.4.1.4413.1.1.1.1.4.2.0"
+  # Free Mem
+  - name: snmp.field
+    options:
+      name: "fpMemFree"
+      oid: "1.3.6.1.4.1.4413.1.1.1.1.4.1.0"
+
+  ## Interface metrics
+  #  Per-interface traffic, errors, drops
+  - name: snmp.table
+    options:
+      oid: "IF-MIB::ifTable"
+  - name: snmp.table.field
+    options:
+      oid: "IF-MIB::ifName"
+      is_tag: "true"
+  - name: snmp.table
+    options:
+      oid: "IF-MIB::ifXTable"
+  - name: snmp.table.field
+    options:
+      oid: "IF-MIB::ifAlias"
+      is_tag: "true"
+  - name: snmp.table.field
+    options:
+      oid: "IF-MIB::ifName"
+      is_tag: "true"
+
+  ## SNMP metrics
+  #  Number of SNMP messages received
+  - name: snmp.field
+    options:
+      name: "snmpInPkts"
+      oid: "SNMPv2-MIB::snmpInPkts.0"
+  #  Number of SNMP Get-Request received
+  - name: snmp.field
+    options:
+      name: "snmpInGetRequests"
+      oid: "SNMPv2-MIB::snmpInGetRequests.0"
+  #  Number of SNMP Get-Next received
+  - name: snmp.field
+    options:
+      name: "snmpInGetNexts"
+      oid: "SNMPv2-MIB::snmpInGetNexts.0"
+  #  Number of SNMP objects requested
+  - name: snmp.field
+    options:
+      name: "snmpInTotalReqVars"
+      oid: "SNMPv2-MIB::snmpInTotalReqVars.0"
+  #  Number of SNMP Get-Response received
+  - name: snmp.field
+    options:
+      name: "snmpInGetResponses"
+      oid: "SNMPv2-MIB::snmpInGetResponses.0"
+  #  Number of SNMP messages sent
+  - name: snmp.field
+    options:
+      name: "snmpOutPkts"
+      oid: "SNMPv2-MIB::snmpOutPkts.0"
+  #  Number of SNMP Get-Request sent
+  - name: snmp.field
+    options:
+      name: "snmpOutGetRequests"
+      oid: "SNMPv2-MIB::snmpOutGetRequests.0"
+  #  Number of SNMP Get-Next sent
+  - name: snmp.field
+    options:
+      name: "snmpOutGetNexts"
+      oid: "SNMPv2-MIB::snmpOutGetNexts.0"
+  #  Number of SNMP Get-Response sent
+  - name: snmp.field
+    options:
+      name: "snmpOutGetResponses"
+      oid: "SNMPv2-MIB::snmpOutGetResponses.0"
+## Unifi Switch devices
+  - name: snmp
+    options:
+      name: "snmp.USW"
+      agents: "{{ unifi_switches }}"
+      interval: "30s"
+      timeout: "15s"
+      retries: 3
+      version: 2
+      community: "public"
+      max_repetitions: 1
+      fielddrop:
+        - "laErrorFlag"
+        - "laErrMessage"
+#      tagdrop:
+#        diskIODevice:
+#          - "loop*"
+#          - "ram*"
+  - name: snmp.field
+    options:
+      name: "sysName"
+      oid: "SNMPv2-MIB::sysName.0"
+      is_tag: "true"
+  #  System vendor OID
+  - name: snmp.field
+    options:
+      name: "sysObjectID"
+      oid: "SNMPv2-MIB::sysObjectID.0"
+  #  System description
+  - name: snmp.field
+    options:
+      name: "sysDescr"
+      oid: "ENTITY-MIB::entPhysicalModelName.2"
+  #  System Firmware
+  - name: snmp.field
+    options:
+      name: "emSoftwareRev"
+      oid: "ENTITY-MIB::entPhysicalSoftwareRev.1"
+  #  System Serial
+  - name: snmp.field
+    options:
+      name: "emSerialNum"
+      oid: "ENTITY-MIB::entPhysicalSerialNum.1"
+  ## Host/System Resources
+  #  System uptime
+  - name: snmp.field
+    options:
+      name: "sysUpTime"
+      oid: "iso.3.6.1.2.1.1.3.0"
+
+  ## System Memory (physical/virtual)
+
+  # Total Mem
+  - name: snmp.field
+    options:
+      name: "fpMemAvailable"
+      oid: "1.3.6.1.4.1.4413.1.1.1.1.4.2.0"
+  # Free Mem
+  - name: snmp.field
+    options:
+      name: "fpMemFree"
+      oid: "1.3.6.1.4.1.4413.1.1.1.1.4.1.0"
+
+  ## Interface metrics
+  #  Per-interface traffic, errors, drops
+  - name: snmp.table
+    options:
+      oid: "IF-MIB::ifTable"
+  - name: snmp.table.field
+    options:
+      oid: "IF-MIB::ifName"
+      is_tag: "true"
+  - name: snmp.table
+    options:
+      oid: "IF-MIB::ifXTable"
+  - name: snmp.table.field
+    options:
+      oid: "IF-MIB::ifAlias"
+      is_tag: "true"
+  - name: snmp.table.field
+    options:
+      oid: "IF-MIB::ifName"
+      is_tag: "true"
+
+  ## SNMP metrics
+  #  Number of SNMP messages received
+  - name: snmp.field
+    options:
+      name: "snmpInPkts"
+      oid: "SNMPv2-MIB::snmpInPkts.0"
+  #  Number of SNMP Get-Request received
+  - name: snmp.field
+    options:
+      name: "snmpInGetRequests"
+      oid: "SNMPv2-MIB::snmpInGetRequests.0"
+  #  Number of SNMP Get-Next received
+  - name: snmp.field
+    options:
+      name: "snmpInGetNexts"
+      oid: "SNMPv2-MIB::snmpInGetNexts.0"
+  #  Number of SNMP objects requested
+  - name: snmp.field
+    options:
+      name: "snmpInTotalReqVars"
+      oid: "SNMPv2-MIB::snmpInTotalReqVars.0"
+  #  Number of SNMP Get-Response received
+  - name: snmp.field
+    options:
+      name: "snmpInGetResponses"
+      oid: "SNMPv2-MIB::snmpInGetResponses.0"
+  #  Number of SNMP messages sent
+  - name: snmp.field
+    options:
+      name: "snmpOutPkts"
+      oid: "SNMPv2-MIB::snmpOutPkts.0"
+  #  Number of SNMP Get-Request sent
+  - name: snmp.field
+    options:
+      name: "snmpOutGetRequests"
+      oid: "SNMPv2-MIB::snmpOutGetRequests.0"
+  #  Number of SNMP Get-Next sent
+  - name: snmp.field
+    options:
+      name: "snmpOutGetNexts"
+      oid: "SNMPv2-MIB::snmpOutGetNexts.0"
+  #  Number of SNMP Get-Response sent
+  - name: snmp.field
+    options:
+      name: "snmpOutGetResponses"
+      oid: "SNMPv2-MIB::snmpOutGetResponses.0"
 
 ```
 
