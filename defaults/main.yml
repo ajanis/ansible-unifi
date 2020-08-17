@@ -72,6 +72,9 @@ unms_rabbitmq_server_additional_erl_args: "-rabbit channel_max 4096"
 docker_unifi_container_name: unifi
 unifi_admin_host: "unifi.{{ www_domain | default('example.com') }}"
 unifi_admin_url: "https://{{ unifi_admin_host }}:8443"
+unifi_admin_user: unifiadmin
+unifi_admin_password: unifipassword
+unifi_admin_site: default
 unifi_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi"
 unifi_data_directory: '{{ unifi_config_directory }}/data'
 unifi_container_data_directory: /config/data
@@ -82,11 +85,14 @@ unifi_snmp_v3_password: "{{ vault_unifi_snmp_v3_password | default('') }}"
 unifi_snmp_v3_username: telegraf
 
 unifi_exporter_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi_exporter"
-unifi_admin_site: default
 
+
+unifi_poller_config_directory: "{{ data_mount_root }}/{{ configs_directory }}/unifi-poller"
 
 ssl_privkey:
 ssl_certchain:
 
 ssl_certpath:
 ssl_keypath:
+
+
